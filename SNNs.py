@@ -28,10 +28,10 @@ class SNNModel(nn.Module):
         super(SNNModel, self).__init__()
         spike_grad = surrogate.fast_sigmoid(slope=25)
 
-        self.fc1 = nn.Linear(20, 400)
+        self.fc1 = nn.Linear(20, 600)
         self.lif1 = snn.Leaky(beta=beta, spike_grad=spike_grad,threshold= 0.3, init_hidden=True)
 
-        self.fc2 = nn.Linear(400, 100)
+        self.fc2 = nn.Linear(600, 100)
         self.lif2 = snn.Leaky(beta=beta, spike_grad=spike_grad,threshold= 0.5, init_hidden=True,output=True)
 
 
@@ -100,7 +100,7 @@ test_set_loader = DataLoader(test_set, batch_size=256, shuffle=False,
 )
 
 
-def train(train_loader, num_epochs=400, lr=1e-3):
+def train(train_loader, num_epochs=600, lr=1e-3):
     s2s = S2SPreProcessor()
     s2s.configure(threshold=0.2)
     model = SNNModel()
@@ -109,14 +109,13 @@ def train(train_loader, num_epochs=400, lr=1e-3):
     optimizer = optim.AdamW(model.parameters(), lr=lr)
 
     print("Training SNN model...")
-    for epoch in range(num_epochs):
+    for epoch in tqdm(range(num_epochs), desc="Epochs"):
         epoch_loss=[]
         for batch in tqdm(train_loader, desc="Training Batches"):
                 
             audio, labels = batch
             spike_trains, _ = s2s((audio, labels)) # Use S2S to convert to spikes
 
-            #print("Input spike rate:", spike_trains.float().mean().item()) # Debugging
             # Forward pass
             y = model(spike_trains)
             loss = criterion(y, labels)
