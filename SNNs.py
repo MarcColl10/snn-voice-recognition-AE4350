@@ -142,6 +142,7 @@ def train(train_loader, num_epochs=600, lr=1e-3):
     return model
 
 Train = True  # Set to True to train the model, False to skip training
+
 if Train == True:
     trained_model = train(train_set_loader)
     torch.save(trained_model.state_dict(), "snn_model.pth")
